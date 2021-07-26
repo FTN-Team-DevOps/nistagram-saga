@@ -34,8 +34,7 @@ jobs:
       uses: mr-smithers-excellent/docker-build-push@v5
       with:
         image: fmladenovic/devops
-        tag: saga
-        tags: v1, latest
+        tags: saga-v1, saga-latest
         registry: docker.io
         dockerfile: Dockerfile
         username: ${{ secrets.DOCKER_USERNAME }}
