@@ -15,10 +15,9 @@ describe('PublicationController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PublicationController],
       providers: [PublicationService],
-    })
-      // .overrideProvider(PublicationService)
-      // .useValue(mockPublicationService)
-      .compile();
+    }).compile();
+    // .overrideProvider(PublicationService)
+    // .useValue(mockPublicationService)
 
     controller = module.get<PublicationController>(PublicationController);
   });
