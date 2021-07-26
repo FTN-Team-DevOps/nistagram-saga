@@ -22,4 +22,8 @@ export class ConfigService {
   getServerPort(): number {
     return +process.env.SERVER_PORT;
   }
+
+  getPublicatonsRoute(): string {
+    return process.env.PUBLICATION_ROUTE || '';
+  }
 }

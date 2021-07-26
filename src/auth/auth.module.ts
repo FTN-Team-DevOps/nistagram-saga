@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { PublicationController } from './publication.controller';
-import { PublicationService } from './publication.service';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'Publication',
+        name: 'Auth',
         transport: Transport.RMQ,
         options: {
           urls: [
             `amqps://vfercydr:j1hUWYqCgZ730bD1sWHuvsM1WtuYjK8_@chimpanzee.rmq.cloudamqp.com/vfercydr`,
           ],
-          queue: 'publication_queue',
+          queue: 'auth_queue',
           queueOptions: {
             durable: false,
           },
@@ -21,8 +21,8 @@ import { PublicationService } from './publication.service';
       },
     ]),
   ],
-  controllers: [PublicationController],
-  providers: [PublicationService],
-  exports: [PublicationService],
+  controllers: [AuthController],
+  providers: [AuthService],
+  exports: [AuthService],
 })
-export class PublicationModule {}
+export class AuthModule {}

@@ -2,10 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
-export class PublicationService {
+export class UserService {
   constructor(
-    @Inject('Publication')
-    private readonly publicationClient: ClientProxy,
+    @Inject('User')
+    private readonly userClient: ClientProxy,
   ) {}
 
   async test() {
@@ -13,9 +13,7 @@ export class PublicationService {
     //   .get(this.configService.getPublicatonsRoute())
     //   .toPromise();
 
-    const ok = await this.publicationClient
-      .send('publications-get', {})
-      .toPromise();
+    const ok = await this.userClient.send('users-get', {}).toPromise();
     return ok;
   }
 }
