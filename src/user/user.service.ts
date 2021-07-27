@@ -1,19 +1,113 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { AuthService } from '../auth/auth.service';
+import { UserCreateDTO } from './dto/user-create.dto';
+import { UserDTO } from './dto/user-dto';
+import { UserLoginRespDTO } from './dto/user-login-resp.dto';
+import { UserLoginDTO } from './dto/user-login.dto';
+import { UserSearchDTO } from './dto/user-search.dto';
+import { UserUpdateDTO } from './dto/user-update.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('User')
-    private readonly userClient: ClientProxy,
+    @Inject('User') private readonly userClient: ClientProxy,
+    private readonly authService: AuthService,
   ) {}
 
-  async test() {
-    // const { data } = await this.httpService
-    //   .get(this.configService.getPublicatonsRoute())
-    //   .toPromise();
+  async currentUser(token: string): Promise<UserDTO> {
+    const auth = await this.authService.currentUser(token);
+    if (!auth) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+    const users = await this.userClient
+      .send('users-get', { _id: auth.user })
+      .toPromise();
+    if (!users) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+    return users[0];
+  }
 
-    const ok = await this.userClient.send('users-get', {}).toPromise();
-    return ok;
+  async search(searchParams: UserSearchDTO): Promise<UserDTO[]> {
+    const users = await this.userClient
+      .send('users-get', searchParams)
+      .toPromise();
+
+    if (!users) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+
+    return users;
+  }
+
+  async create(userCreate: UserCreateDTO): Promise<UserDTO> {
+    const createdUser = await this.userClient
+      .send('users-create', userCreate)
+      .toPromise();
+
+    if (!createdUser) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+
+    await this.authService.create({
+      user: createdUser._id,
+      password: userCreate.password,
+      email: userCreate.email,
+      role: 'user',
+    });
+
+    return createdUser;
+  }
+
+  async logIn(logInDTO: UserLoginDTO): Promise<UserLoginRespDTO> {
+    const auth = await this.authService.logIn(logInDTO);
+
+    if (auth) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+
+    const user = await this.userClient
+      .send('users-find-by-id', auth.user)
+      .toPromise();
+
+    if (!user) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+
+    return {
+      token: auth.token,
+      role: auth.role,
+      user,
+    };
+  }
+
+  async update(userId: string, userUpdate: UserUpdateDTO): Promise<UserDTO> {
+    const updatedUser = await this.userClient
+      .send('users-update', { userId, data: userUpdate })
+      .toPromise();
+
+    if (!updatedUser) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+
+    if (userUpdate.password) {
+      await this.authService.update(userId, { password: userUpdate.password });
+    }
+    return updatedUser;
+  }
+
+  async delete(userId: string): Promise<UserDTO> {
+    const deletedUser = await this.userClient
+      .send('users-delete', userId)
+      .toPromise();
+    if (!deletedUser) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+    return deletedUser;
   }
 }
