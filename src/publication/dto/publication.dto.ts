@@ -1,8 +1,8 @@
-type TPublicationType = 'post' | 'story';
-type TPublicationStatus = 'active' | 'deleted';
+export type TPublicationType = 'post' | 'story';
+export type TPublicationStatus = 'active' | 'deleted';
 
 export class PublicationDTO {
-  id: string;
+  _id: string;
   user: string;
   descritpion: string;
   pictures: string[];
@@ -12,7 +12,6 @@ export class PublicationDTO {
   lastChangedTimeStamp: string;
   endTimeStamp: string | undefined;
 
-  locations: string[];
   siteUrl: string | null;
   status: TPublicationStatus;
 }

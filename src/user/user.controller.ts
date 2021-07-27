@@ -27,7 +27,7 @@ export class UserController {
     return userWithToken;
   }
 
-  @Get('/')
+  @Get()
   public async search(@Query() username?: string): Promise<UserDTO[]> {
     const users = await this.userService.search({ username });
     return users;

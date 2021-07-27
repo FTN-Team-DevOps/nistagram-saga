@@ -46,7 +46,7 @@ export class AuthService {
 
   async update(userId: string, authUpdate: AuthUpdateDTO): Promise<AuthDTO> {
     const updatedAuth = await this.authClient
-      .send('auth-update', { userId, data: authUpdate })
+      .send('auth-update', { _id: userId, data: authUpdate })
       .toPromise();
     if (updatedAuth) {
       throw new InternalServerErrorException('Something went wrong!');
