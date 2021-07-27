@@ -9,6 +9,7 @@ export type TActivityAction =
   | 'location';
 
 export class ActivityDTO {
+  _id: string;
   user: string; // IUser['id'];
   targetUser?: string; // User['id']; // meesage, tag
   publication?: string; // IPublication['id']; //sve sem message
