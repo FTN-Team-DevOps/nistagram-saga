@@ -1,21 +1,98 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { UserService } from '../user/user.service';
+import { PublicationCreateDTO } from './dto/publication-create.dto';
+import { PublicationSearchDTO } from './dto/publication-search.dto';
+import { PublicationUpdateDTO } from './dto/publication-update.dto';
+import { PublicationDTO } from './dto/publication.dto';
 
 @Injectable()
 export class PublicationService {
   constructor(
     @Inject('Publication')
     private readonly publicationClient: ClientProxy,
+    private readonly userService: UserService,
   ) {}
 
-  async test() {
-    // const { data } = await this.httpService
-    //   .get(this.configService.getPublicatonsRoute())
-    //   .toPromise();
+  async search(
+    token?: string,
+    searchParams?: PublicationSearchDTO,
+  ): Promise<PublicationDTO[]> {
+    let publications: PublicationDTO[];
+    if (!searchParams) {
+      const relevatnUsers = this.userService.getRelevant(token);
+      publications = await this.publicationClient
+        .send('publications-get', { relevatnUsers })
+        .toPromise();
+    } else {
+      publications = await this.publicationClient
+        .send('publications-get', searchParams)
+        .toPromise();
+    }
 
-    const ok = await this.publicationClient
-      .send('publications-get', {})
+    if (!publications) {
+      throw new InternalServerErrorException('Something went wrong');
+    }
+    return publications;
+  }
+
+  async create(
+    token: string,
+    piblicationCreate: PublicationCreateDTO,
+  ): Promise<PublicationDTO> {
+    const currentUser = await this.userService.currentUser(token);
+    const createdPublication = await this.publicationClient
+      .send('publications-create', {
+        ...piblicationCreate,
+        user: currentUser._id,
+      })
       .toPromise();
-    return ok;
+
+    if (createdPublication) {
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    return createdPublication;
+  }
+
+  async update(
+    token: string,
+    publicationId: string,
+    piblicationUpdate: PublicationUpdateDTO,
+  ): Promise<PublicationDTO> {
+    const currentUser = await this.userService.currentUser(token);
+    const updatedPublication = await this.publicationClient
+      .send('publications-update', {
+        _id: publicationId,
+        data: {
+          ...piblicationUpdate,
+          user: currentUser._id,
+        },
+      })
+      .toPromise();
+
+    if (updatedPublication) {
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    return updatedPublication;
+  }
+
+  async delete(token: string, publicationId: string): Promise<PublicationDTO> {
+    const currentUser = await this.userService.currentUser(token);
+    const deletedPublication = await this.publicationClient
+      .send('publications-delete', {
+        user: currentUser._id,
+        _id: publicationId,
+      })
+      .toPromise();
+    if (!deletedPublication) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+    return deletedPublication;
   }
 }

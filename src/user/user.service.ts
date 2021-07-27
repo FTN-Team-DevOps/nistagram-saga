@@ -88,7 +88,7 @@ export class UserService {
 
   async update(userId: string, userUpdate: UserUpdateDTO): Promise<UserDTO> {
     const updatedUser = await this.userClient
-      .send('users-update', { userId, data: userUpdate })
+      .send('users-update', { _id: userId, data: userUpdate })
       .toPromise();
 
     if (!updatedUser) {
@@ -109,5 +109,22 @@ export class UserService {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return deletedUser;
+  }
+
+  async getRelevant(token?: string) {
+    const publicUsers = (await this.search({ private: false })).map(
+      (user) => user._id,
+    );
+    if (token) {
+      const currentUser = await this.currentUser(token);
+      if (currentUser) {
+        throw new InternalServerErrorException('Something went wrong');
+      }
+      // const followedUsers = (await followService.search({subscriber: currentUser._id})
+      // .map(follow => follow.observer);
+      // return [...publicUser, ...followedUsers];
+      return publicUsers.filter((userId) => userId !== currentUser._id);
+    }
+    return publicUsers;
   }
 }

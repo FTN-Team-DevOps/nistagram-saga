@@ -1,5 +1,6 @@
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserModule } from '../user/user.module';
 import { PublicationController } from './publication.controller';
 import { PublicationService } from './publication.service';
 
@@ -24,6 +25,7 @@ describe('PublicationController', () => {
             },
           },
         ]),
+        UserModule,
       ],
       controllers: [PublicationController],
       providers: [PublicationService],
