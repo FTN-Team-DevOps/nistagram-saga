@@ -1,35 +1,37 @@
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PublicationController } from './publication.controller';
-import { PublicationService } from './publication.service';
+import { AuthModule } from '../auth/auth.module';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 
-describe('PublicationController', () => {
-  let controller: PublicationController;
+describe('UserController', () => {
+  let controller: UserController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ClientsModule.register([
           {
-            name: 'Publication',
+            name: 'User',
             transport: Transport.RMQ,
             options: {
               urls: [
                 `amqps://vfercydr:j1hUWYqCgZ730bD1sWHuvsM1WtuYjK8_@chimpanzee.rmq.cloudamqp.com/vfercydr`,
               ],
-              queue: 'publication_queue',
+              queue: 'user_queue',
               queueOptions: {
                 durable: false,
               },
             },
           },
         ]),
+        AuthModule,
       ],
-      controllers: [PublicationController],
-      providers: [PublicationService],
+      controllers: [UserController],
+      providers: [UserService],
     }).compile();
 
-    controller = module.get<PublicationController>(PublicationController);
+    controller = module.get<UserController>(UserController);
   });
 
   it('should be defined', () => {
