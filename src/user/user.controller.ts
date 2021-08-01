@@ -7,7 +7,9 @@ import {
   Query,
   Body,
   Param,
+  UseGuards,
 } from '@nestjs/common';
+import { MyGuard } from '../auth/guard/my.guard';
 import { UserCreateDTO } from './dto/user-create.dto';
 import { UserDTO } from './dto/user-dto';
 import { UserLoginRespDTO } from './dto/user-login-resp.dto';
@@ -28,8 +30,16 @@ export class UserController {
   }
 
   @Get()
-  public async search(@Query() username?: string): Promise<UserDTO[]> {
-    const users = await this.userService.search({ username });
+  public async search(
+    @Query('_id') _id?: string,
+    @Query('username') username?: string,
+    @Query('private') includePrivate?: boolean,
+  ): Promise<UserDTO[]> {
+    const users = await this.userService.search({
+      _id,
+      username,
+      private: includePrivate,
+    });
     return users;
   }
 
@@ -40,6 +50,7 @@ export class UserController {
   }
 
   @Put('/:userId')
+  @UseGuards(MyGuard)
   public async update(
     @Param('userId') userId: string,
     @Body() userUpdate: UserUpdateDTO,

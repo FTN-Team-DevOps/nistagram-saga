@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -47,7 +48,18 @@ export class UserService {
 
   async create(userCreate: UserCreateDTO): Promise<UserDTO> {
     const createdUser = await this.userClient
-      .send('users-create', userCreate)
+      .send('users-create', {
+        username: userCreate.username,
+        email: userCreate.email,
+        name: userCreate.name,
+        phone: userCreate.phone,
+        gender: userCreate.gender,
+        siteUrl: userCreate.siteUrl,
+        biography: userCreate.biography,
+        picture: userCreate.picture,
+        private: userCreate.private,
+        taggable: userCreate.taggable,
+      })
       .toPromise();
 
     if (!createdUser) {
@@ -67,22 +79,22 @@ export class UserService {
   async logIn(logInDTO: UserLoginDTO): Promise<UserLoginRespDTO> {
     const auth = await this.authService.logIn(logInDTO);
 
-    if (auth) {
-      throw new InternalServerErrorException('Something went wrong!');
+    if (!auth) {
+      throw new BadRequestException('Bad credentials!');
     }
 
-    const user = await this.userClient
-      .send('users-find-by-id', auth.user)
+    const users = await this.userClient
+      .send('users-get', { _id: auth.user, private: true })
       .toPromise();
 
-    if (!user) {
+    if (!users || !users[0]) {
       throw new InternalServerErrorException('Something went wrong!');
     }
 
     return {
       token: auth.token,
       role: auth.role,
-      user,
+      user: users[0],
     };
   }
 
