@@ -25,9 +25,7 @@ export class AuthService {
   }
 
   async currentUser(token: string): Promise<AuthDTO> {
-    const auth = await this.authClient
-      .send('auth-find-by-token', token)
-      .toPromise();
+    const auth = await this.authClient.send('auth-by-token', token).toPromise();
     if (!auth) {
       throw new InternalServerErrorException('Something went wrong!');
     }

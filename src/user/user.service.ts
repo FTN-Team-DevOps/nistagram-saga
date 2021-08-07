@@ -22,13 +22,10 @@ export class UserService {
 
   async currentUser(token: string): Promise<UserDTO> {
     const auth = await this.authService.currentUser(token);
-    if (!auth) {
-      throw new InternalServerErrorException('Something went wrong!');
-    }
     const users = await this.userClient
       .send('users-get', { _id: auth.user })
       .toPromise();
-    if (!users) {
+    if (!users || !users[0]) {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return users[0];

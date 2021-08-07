@@ -9,7 +9,9 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
+import { UserToken } from '../auth/decorators/user-token.decorator';
 import { MyGuard } from '../auth/guard/my.guard';
+import { UserGuard } from '../auth/guard/user.guard';
 import { UserCreateDTO } from './dto/user-create.dto';
 import { UserDTO } from './dto/user-dto';
 import { UserLoginRespDTO } from './dto/user-login-resp.dto';
@@ -41,6 +43,13 @@ export class UserController {
       private: includePrivate,
     });
     return users;
+  }
+
+  @Get('/me')
+  @UseGuards(UserGuard)
+  public async me(@UserToken() token: string): Promise<UserDTO> {
+    const user = await this.userService.currentUser(token);
+    return user;
   }
 
   @Post('/')
