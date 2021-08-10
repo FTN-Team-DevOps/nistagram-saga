@@ -52,7 +52,7 @@ export class PublicationService {
       })
       .toPromise();
 
-    if (createdPublication) {
+    if (!createdPublication) {
       throw new InternalServerErrorException('Something went wrong');
     }
 
@@ -60,35 +60,28 @@ export class PublicationService {
   }
 
   async update(
-    token: string,
     publicationId: string,
     piblicationUpdate: PublicationUpdateDTO,
   ): Promise<PublicationDTO> {
-    const currentUser = await this.userService.currentUser(token);
     const updatedPublication = await this.publicationClient
       .send('publications-update', {
         _id: publicationId,
         data: {
           ...piblicationUpdate,
-          user: currentUser._id,
         },
       })
       .toPromise();
 
-    if (updatedPublication) {
+    if (!updatedPublication) {
       throw new InternalServerErrorException('Something went wrong');
     }
 
     return updatedPublication;
   }
 
-  async delete(token: string, publicationId: string): Promise<PublicationDTO> {
-    const currentUser = await this.userService.currentUser(token);
+  async delete(publicationId: string): Promise<PublicationDTO> {
     const deletedPublication = await this.publicationClient
-      .send('publications-delete', {
-        user: currentUser._id,
-        _id: publicationId,
-      })
+      .send('publications-delete', publicationId)
       .toPromise();
     if (!deletedPublication) {
       throw new InternalServerErrorException('Something went wrong!');

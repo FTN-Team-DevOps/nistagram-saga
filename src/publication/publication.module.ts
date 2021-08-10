@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../user/user.module';
 import { PublicationController } from './publication.controller';
 import { PublicationService } from './publication.service';
@@ -22,6 +23,7 @@ import { PublicationService } from './publication.service';
       },
     ]),
     UserModule,
+    AuthModule,
   ],
   controllers: [PublicationController],
   providers: [PublicationService],
