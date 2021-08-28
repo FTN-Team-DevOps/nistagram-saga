@@ -4,7 +4,7 @@ export type TPublicationStatus = 'active' | 'deleted';
 export class PublicationDTO {
   _id: string;
   user: string;
-  descritpion: string;
+  description: string;
   pictures: string[];
   publicationType: TPublicationType;
 

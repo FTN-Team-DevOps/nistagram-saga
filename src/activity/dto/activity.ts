@@ -1,5 +1,3 @@
-import { UserDTO } from '../../user/dto/user-dto';
-
 export type TActivityAction =
   | 'like'
   | 'dislike'
@@ -10,9 +8,9 @@ export type TActivityAction =
   | 'tag'
   | 'location';
 
-export class ActivityDTO {
+export class Activity {
   _id: string;
-  user: UserDTO; // IUser['id'];
+  user: string; // IUser['id'];
   targetUser?: string; // User['id']; // meesage, tag
   publication?: string; // IPublication['id']; //sve sem message
   text?: string; // message, tag, comment, location

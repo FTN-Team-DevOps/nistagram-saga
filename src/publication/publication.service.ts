@@ -45,6 +45,7 @@ export class PublicationService {
     piblicationCreate: PublicationCreateDTO,
   ): Promise<PublicationDTO> {
     const currentUser = await this.userService.currentUser(token);
+
     const createdPublication = await this.publicationClient
       .send('publications-create', {
         ...piblicationCreate,

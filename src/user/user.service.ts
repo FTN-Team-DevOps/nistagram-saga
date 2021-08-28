@@ -22,6 +22,7 @@ export class UserService {
 
   async currentUser(token: string): Promise<UserDTO> {
     const auth = await this.authService.currentUser(token);
+
     const users = await this.userClient
       .send('users-get', { _id: auth.user })
       .toPromise();
@@ -34,6 +35,17 @@ export class UserService {
   async search(searchParams: UserSearchDTO): Promise<UserDTO[]> {
     const users = await this.userClient
       .send('users-get', searchParams)
+      .toPromise();
+
+    if (!users) {
+      throw new InternalServerErrorException('Something went wrong!');
+    }
+
+    return users;
+  }
+  async getByIds(ids: string[]): Promise<UserDTO[]> {
+    const users = await this.userClient
+      .send('users-get-by-ids', ids)
       .toPromise();
 
     if (!users) {
@@ -81,7 +93,7 @@ export class UserService {
     }
 
     const users = await this.userClient
-      .send('users-get', { _id: auth.user, private: true })
+      .send('users-get', { _id: auth.user })
       .toPromise();
 
     if (!users || !users[0]) {

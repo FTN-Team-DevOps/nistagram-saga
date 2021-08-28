@@ -1,7 +1,7 @@
 import { TPublicationType } from './publication.dto';
 
 export class PublicationUpdateDTO {
-  descritpion?: string;
+  description?: string;
   pictures?: string[];
   publicationType?: TPublicationType;
   endTimeStamp?: string;
