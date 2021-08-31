@@ -22,17 +22,9 @@ export class PublicationService {
     token?: string,
     searchParams?: PublicationSearchDTO,
   ): Promise<PublicationDTO[]> {
-    let publications: PublicationDTO[];
-    if (!searchParams) {
-      const relevatnUsers = this.userService.getRelevant(token);
-      publications = await this.publicationClient
-        .send('publications-get', { relevatnUsers })
-        .toPromise();
-    } else {
-      publications = await this.publicationClient
-        .send('publications-get', searchParams)
-        .toPromise();
-    }
+    const publications = await this.publicationClient
+      .send('publications-get', searchParams || {})
+      .toPromise();
 
     if (!publications) {
       throw new InternalServerErrorException('Something went wrong');
