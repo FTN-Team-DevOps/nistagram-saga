@@ -9,9 +9,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: [
-        `amqps://vfercydr:j1hUWYqCgZ730bD1sWHuvsM1WtuYjK8_@chimpanzee.rmq.cloudamqp.com/vfercydr`,
-      ],
+      urls: [process.env.AMQP_URL],
       queue: 'saga_queue',
       queueOptions: {
         durable: false,

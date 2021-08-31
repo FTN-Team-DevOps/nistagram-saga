@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { UserService } from '../user/user.service';
+import { Activity } from './dto/activity';
 import { ActivityCreateDTO } from './dto/activity-create.dto';
 import { ActivitySearchDTO } from './dto/activity-search.dto';
 import { ActivityUpdateDTO } from './dto/activity-update.dto';
@@ -18,13 +19,21 @@ export class ActivityService {
   ) {}
 
   async search(searchParams?: ActivitySearchDTO): Promise<ActivityDTO[]> {
-    const publications = await this.activityClient
+    const activities = (await this.activityClient
       .send('activities-get', searchParams)
-      .toPromise();
-    if (!publications) {
+      .toPromise()) as Activity[];
+
+    const userIds = activities.map((activity) => activity.user);
+
+    const users = await this.userService.getByIds(userIds);
+
+    if (!activities) {
       throw new InternalServerErrorException('Something went wrong');
     }
-    return publications;
+    return activities.map((activity, index) => ({
+      ...activity,
+      user: users[index],
+    }));
   }
 
   async create(
@@ -38,7 +47,7 @@ export class ActivityService {
     if (!createdActivity) {
       throw new InternalServerErrorException('Something went wrong!');
     }
-    return createdActivity;
+    return { ...createdActivity, user: currentUser };
   }
 
   async update(
@@ -56,7 +65,7 @@ export class ActivityService {
     if (!updatedActivity) {
       throw new InternalServerErrorException('Something went wrong!');
     }
-    return updatedActivity;
+    return { ...updatedActivity, user: currentUser };
   }
 
   async delete(token: string, activityId: string): Promise<ActivityDTO> {

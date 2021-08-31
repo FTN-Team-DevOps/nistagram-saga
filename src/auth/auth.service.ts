@@ -18,17 +18,15 @@ export class AuthService {
 
   async logIn(authDTO: UserLoginDTO): Promise<AuthDTO> {
     const auth = await this.authClient.send('auth-log-in', authDTO).toPromise();
-    if (auth) {
+    if (!auth) {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return auth;
   }
 
   async currentUser(token: string): Promise<AuthDTO> {
-    const auth = await this.authClient
-      .send('auth-find-by-token', token)
-      .toPromise();
-    if (auth) {
+    const auth = await this.authClient.send('auth-by-token', token).toPromise();
+    if (!auth) {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return auth;
@@ -38,7 +36,7 @@ export class AuthService {
     const createdAuth = await this.authClient
       .send('auth-create', authCreate)
       .toPromise();
-    if (createdAuth) {
+    if (!createdAuth) {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return createdAuth;
@@ -46,9 +44,9 @@ export class AuthService {
 
   async update(userId: string, authUpdate: AuthUpdateDTO): Promise<AuthDTO> {
     const updatedAuth = await this.authClient
-      .send('auth-update', { _id: userId, data: authUpdate })
+      .send('auth-update', { user: userId, data: authUpdate })
       .toPromise();
-    if (updatedAuth) {
+    if (!updatedAuth) {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return updatedAuth;
@@ -58,13 +56,19 @@ export class AuthService {
     const auth = await this.authClient
       .send('auth-find-by-user-id', userId)
       .toPromise();
-    if (auth) {
+    if (!auth) {
       throw new InternalServerErrorException('Something went wrong!');
     }
     return auth;
   }
 
-  async checkRole(token: string, role: TRole): Promise<boolean> {
-    return this.authClient.send('auth-check-role', { role, token }).toPromise();
+  async checkPermission(token: string, role: TRole): Promise<boolean> {
+    return this.authClient
+      .send('auth-check-permission', { role, token })
+      .toPromise();
+  }
+
+  async checkIfMy(token: string, user: string): Promise<boolean> {
+    return this.authClient.send('auth-if-my', { token, user }).toPromise();
   }
 }

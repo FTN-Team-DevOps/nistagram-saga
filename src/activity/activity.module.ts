@@ -11,9 +11,7 @@ import { ActivityService } from './activity.service';
         name: 'Activity',
         transport: Transport.RMQ,
         options: {
-          urls: [
-            `amqps://vfercydr:j1hUWYqCgZ730bD1sWHuvsM1WtuYjK8_@chimpanzee.rmq.cloudamqp.com/vfercydr`,
-          ],
+          urls: [process.env.AMQP_URL],
           queue: 'activity_queue',
           queueOptions: {
             durable: false,

@@ -21,11 +21,11 @@ export class ActivityController {
 
   @Get()
   public search(
-    @Query() _id?: string,
-    @Query() user?: string,
-    @Query() targetUser?: string,
-    @Query() publication?: string,
-    @Query() action?: TActivityAction,
+    @Query('_id') _id?: string,
+    @Query('user') user?: string,
+    @Query('targetUser') targetUser?: string,
+    @Query('publication') publication?: string,
+    @Query('action') action?: TActivityAction,
   ): Promise<ActivityDTO[]> {
     return this.activityService.search({
       _id,
